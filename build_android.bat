@@ -5,7 +5,7 @@ setlocal enabledelayedexpansion
 
 :initConfig
 set configFile=%~n0.ini
-set LLVM_DIR=%BUILDPATH%/llvm-project
+set LLVM_DIR=%BUILDPATH%llvm-project
 set CMAKE=cmake.exe
 set MAKE=ninja.exe
 set GENERATOR=Ninja
@@ -69,6 +69,10 @@ for %%a in (%BUILD_TYPE_LIST%) do (
 		call !command_build!
 	)
 )
+
+goto exit
+
+
 
 
 ::读取ini配置. %~1:文件名，%~2:域，%~3:key %~4:返回的value值

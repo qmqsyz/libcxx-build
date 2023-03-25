@@ -30,18 +30,29 @@ set(LLVM_LIBRARY_OUTPUT_INTDIR ${RELEASE_OUTPUT_DIR}/${TARGET_ABI})
 set(LIBCXX_INSTALL_LIBRARY_DIR ${TARGET_ABI} CACHE PATH "Path where built libc++ libraries should be installed." FORCE)
 set(LIBCXXABI_INSTALL_LIBRARY_DIR ${TARGET_ABI} CACHE PATH "Path where built libc++abi libraries should be installed." FORCE)
 
+
 add_compile_options(-std=c++20)
+
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 else()
+	get_filename_component(LLVM_DIR ${LLVM_DIR} ABSOLUTE)#convert to absolute path
+	add_compile_options(-fmacro-prefix-map=${LLVM_DIR}/= -fdebug-prefix-map=${LLVM_DIR}/=)
+
 	if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 		add_compile_options(-O0)
 	elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
-		add_compile_options(-O3)
-		add_compile_options(-ffunction-sections -fdata-sections -fvisibility=hidden -fvisibility-inlines-hidden)
+		add_compile_options(-Os -DNDEBUG)
+		add_compile_options(-fvisibility=hidden -fvisibility-inlines-hidden)
 		add_compile_options(-fvisibility-global-new-delete-hidden)
 		add_compile_options(-Wno-unused-command-line-argument -Wno-macro-redefined)
 		add_compile_options(-D__STDC_FORMAT_MACROS -D_LIBCPP_NO_EXCEPTIONS -D_LIBCPP_NO_RTTI -D_LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS)
 		add_compile_options(-D_LIBCXXABI_NO_EXCEPTIONS -DHAS_THREAD_LOCAL)
+		
+		add_compile_options(-flto=full)
+		add_link_options(-flto=full)
+		
+		add_compile_options(-ffunction-sections -fdata-sections)
+		add_link_options(-Wl,--gc-sections)
 	endif()
 endif()
 
